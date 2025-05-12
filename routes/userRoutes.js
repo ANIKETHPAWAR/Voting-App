@@ -14,6 +14,9 @@ if(existingAdmin){
 }
 
  }
+ if(data.age < 18){
+    return res.status(500).json('You must be 18+ to vote')
+ }
 
 
     const newUser =new User(data);

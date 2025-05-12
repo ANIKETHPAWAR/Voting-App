@@ -1,4 +1,4 @@
-🗳️ Voting Application - Backend Project
+🗳️ Voting Application - Backend Project.
 This is the backend of a secure and user-friendly voting system, designed to handle user authentication, candidate management, and the voting process. It ensures one vote per user and provides role-based access, with distinct functionalities for users and administrators.
 
 🔑 Features

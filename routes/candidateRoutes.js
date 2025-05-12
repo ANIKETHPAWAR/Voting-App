@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router()
 const candidate = require('./../models/candidate')
 const User = require('./../models/user')
-const {jwtAuthMiddleware,generateToken} = require('./../jwt')
+const {jwtAuthMiddleware,generateToken} = require('./../jwt');
+const Candidate = require('./../models/candidate');
 
 
 // function to check admin role
@@ -101,9 +102,96 @@ if(!deletedReponse){
 })
 
 
+// route for candidates list
+router.get('/list',async(req,res)=>{
+try{
+const candidateList = await Candidate.find();
+
+const candidateShow = candidateList.map((data)=>{ 
+    return {
+        candidateName:data.name,
+        age:data.age,
+        party:data.party,
+
+
+    }
+})
+res.status(200).json(candidateShow);
+
+}
+catch(err){
+     console.log(err);
+    res.status(500).json({error:'internal error'})
+
+}
+
+
+})
+
+ /// for voting
+
+router.post('/vote/:candidateID', async(req,res)=>{
+
+
+   const  candidateID = req.params.candidateID;
+  const  userID = req.user.id;
+try{
+    const candidate = await Candidate.findById(candidateID);
+    if(!candidate){
+        return res.status(404).json('Candidate not found');
+
+    }
+    const user = await User.findById(userID);
+    if(!user){
+        return res.status(404).json('User  not found');
+
+    }
+    if(user.isVoted){
+        return res.status(400).json({message : 'You have already voted'})
+    }
+      if(user.role ==='admin'){
+        return res.status(400).json({message : 'Admin is not allowed to vote'})
+    }
+
+ /// casting of vote to a candidate logic
+ candidate.votes.push({user: userID});
+ candidate.voteCount++;
+ await candidate.save();
+
+ // user logic
+user.isVoted = true;
+await user.save();
+
+res.status(200).json({message:'Vote recorded successfully'})
+
+}catch(err){
+  console.log(err);
+    res.status(500).json({error:'internal error'})
+}
+
+})
+
+/// route for vote counts
+router.get('/vote/count',async (req,res)=>{
+    try{
+const candidate = await Candidate.find().sort({voteCount:'desc'})
+
+const voteRecord = candidate.map((data)=>{
+    return {
+        party: data.party,
+        count: data.voteCount
+    }
+})
+
+res.status(200).json(voteRecord);
 
 
 
+    }catch(err){
+  console.log(err);
+    res.status(500).json({error:'internal error'})
+}
+})
 
 
 

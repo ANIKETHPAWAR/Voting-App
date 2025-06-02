@@ -184,9 +184,6 @@ const voteRecord = candidate.map((data)=>{
 })
 
 res.status(200).json(voteRecord);
-
-
-
     }catch(err){
   console.log(err);
     res.status(500).json({error:'internal error'})
